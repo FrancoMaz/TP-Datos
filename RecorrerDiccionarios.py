@@ -23,5 +23,5 @@ for clave in claseNumeros:
 		tupla = (clave,claseNumeros[clave[0]])
 		registros.append(tupla)
 archivo_csv.writerows(registros)
-
+#Esto es un comentario
 archivo.close()
