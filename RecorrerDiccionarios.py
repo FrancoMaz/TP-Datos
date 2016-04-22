@@ -1,5 +1,6 @@
 import csv
 import matplotlib.pyplot as plt
+from decimal import *
 
 train = open('train.csv')
 archivo_csv = csv.reader(train, delimiter=",")
@@ -33,21 +34,20 @@ for label in archivo_csv:
 		pixels[numpixel][indice] += 1
 		pixels[numpixel][256] += 1
 		
-	for i in range(0,10):
-		listaPixels = numeros[str(i)]
-		sumaProductoria = 0
-		for j in range(0,785):
-			productoria = 1
-			for valor in range(0,256):
-				valorPixel = listaPixels[j][valor]
-				if valorPixel == 0: valorPixel = 1
-				productoria = productoria * valorPixel
-			productoria = productoria/listaPixels[j][valor]
-			vectorNumeros[i][j] = productoria
-			sumaProductoria += productoria
-		probabilidadTotal += sumaProductoria * frecuenciaNumeros[str(i)]
+train.close()	
 
-train.close()
+for i in range(0,10):
+	listaPixels = numeros[str(i)]
+	sumaProductoria = 0
+	for j in range(0,785):
+		productoria = 1
+		for valor in range(0,256):
+			valorPixel = listaPixels[j][valor]
+			if valorPixel == 0: valorPixel = 1
+			productoria = productoria * (valorPixel/listaPixels[j][256])
+		vectorNumeros[i][j] = productoria
+		sumaProductoria += productoria
+	probabilidadTotal += sumaProductoria * frecuenciaNumeros[str(i)]
 
 archivo = open ("resultadoClases.csv","w")
 archivo_csv = csv.writer(archivo)
