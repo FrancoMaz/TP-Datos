@@ -46,24 +46,14 @@ for i in range(0,10):
 		for valor in range(0,256):
 			valorPixel = listaPixels[j][valor]
 			
-			if valorPixel <>0: 
+			if valorPixel <>0:
 				probablidadDelPixel = float(valorPixel)/float(listaPixels[j][256])
 				productoria = float(productoria * probablidadDelPixel)
+				listaPixels[j][valor] = probablidadDelPixel
 		
 		vectorNumeros[i][j] = float(productoria)
 		sumaProductoria += float(productoria)
 	probabilidadTotal += float(sumaProductoria * frecuenciaNumeros[str(i)]/42000)
-	
-#lo uso para dejar a cada valor posible entre 0 a 255 para cada pixel de cada clase de numero su probabilidad
-
-for i in range(0,10):
-	listaPixels = numeros[str(i)]
-	for j in range(0,784):
-		for valor in range(0,256):
-			valorPixel = listaPixels[j][valor]
-			if valorPixel == 0: valorPixel = 1
-			listaPixels[j][valor]= float(valorPixel)/float(listaPixels[j][256])
-			
 
 #Empecemos a predecir que esto se va a descontrolar
 test = open('test.csv')
@@ -73,38 +63,24 @@ test_csv.next()
 archivoPrediccion = open ("resultadoDeLaPrediccionDeNumeros.csv","w")
 prediccion_csv = csv.writer(archivoPrediccion)
 registros = []
-registros.append(("NumerosPredecido","Probabilidad"))
-
+registros.append(("ImageId","Label"))
+contador = 0
 for label in test_csv:
+	contador += 1
 	tuplaX = label
 	probabilidadBayesinaMayor = -1
 	for i in range(0,10):
 		listaPixels = numeros[str(i)]
 		sumaDeProbabilidadDeLosPixels = 0
 		for j in range(0,784):
-			sumaDeProbabilidadDeLosPixels += float(listaPixels[j][int(tuplaX[j])])
+			if int(tuplaX[j]) <> 0:
+				sumaDeProbabilidadDeLosPixels += float(listaPixels[j][int(tuplaX[j])])
 		probabilidadBayesiana = float((sumaDeProbabilidadDeLosPixels*frecuenciaNumeros[str(i)]/42000)/probabilidadTotal)
 		if(probabilidadBayesiana > probabilidadBayesinaMayor):
 			claseNumero = i;
 			probabilidadBayesinaMayor = probabilidadBayesiana
-			print probabilidadBayesinaMayor
-			print claseNumero
-	tuplaNumero=(claseNumero,probabilidadBayesinaMayor)
+	tuplaNumero=(contador,claseNumero)
 	registros.append(tuplaNumero)				
 prediccion_csv.writerows(registros)		
 test.close()
 archivoPrediccion.close()
-
-
-
-archivo = open ("resultadoClases.csv","w")
-archivo_csv = csv.writer(archivo)
-registros = []
-registros.append(("Numeros","Cantidad"))
-	
-for clave in frecuenciaNumeros:
-		tupla = (clave,frecuenciaNumeros[clave[0]])
-		registros.append(tupla)
-archivo_csv.writerows(registros)
-
-archivo.close()
