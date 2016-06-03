@@ -1,61 +1,56 @@
 import csv
 import matplotlib.pyplot as plt
+NUM_PIXELES = 784
+NUM_CLASES = 10
 
+wInicial = range(0,NUM_PIXELES + 1)
+vectorw = range(0,NUM_CLASES + 1)
+vectorPosiciones = range(0,NUM_CLASES + 1)
+contador = 0
 
-train = open('train.csv')
-archivo_csv = csv.reader(train, delimiter=",")
-archivo_csv.next()
+for i in range(0,NUM_PIXELES + 1):
+	wInicial[i] = -1
 
-pixelsCeros = range(0,784)
+for i in range(0,NUM_CLASES + 1):
+	vectorw[i] = wInicial
+	vectorPosiciones[i] = []
 
-for i in range(0,784):
-	pixelsCeros[i] = [i, 0]
+def productoInterno(x,w):
+	x[0] = 1
+	producto = 0
+	for i in range(0,NUM_PIXELES + 1):
+		producto += int(x[i])*w[i]
+	return producto
+	
+def suma(x,w):
+	vectorSuma = range(NUM_PIXELES + 1)
+	for i in range(0,NUM_PIXELES + 1):
+		vectorSuma[i] = int(x[i]) + int(w[i])
+	return vectorSuma
 
-for label in archivo_csv:
-	for i in range (1,785):
-		if label[i] == '0':
-			pixelsCeros[i-1][1] += 1
+def calcularNuevoW(vector):
+	vector[0] = 1
+	wNuevo = suma(vectorw[vector[0]], vector)
+
+def perceptron(vector):
+	resultado = productoInterno(vector, vectorw[int(vector[0])])
+	vectorPosiciones[vector[0]].append(contador)
+	if resultado < 0:
+		calcularNuevoW(vector)
+		for i in range(0,len(vectorPosiciones[vector[0]]) + 1):
+			perceptron()
 			
-train.close()
+		
 
 train = open('train.csv')
 archivo_csv = csv.reader(train, delimiter=",")
 archivo_csv.next() 
 
-frecuenciaNumeros = {}
-numeros = {}
-vectorNumeros = range(0,10)
-probabilidadTotal = 0
-
-for i in range(0,10):
-	vectorPixels = range(0,785)
-	vectorNumeros[i] = vectorPixels
-
 for label in archivo_csv:
-	columnasEliminadas = 0
-	if label[0] not in frecuenciaNumeros:
-			frecuenciaNumeros[label[0]] = 0
-	frecuenciaNumeros[label[0]] += 1
-	if label[0] not in numeros:
-		pixels = range(0,784)
-		for col in range(0,784):
-			fila = range(0,257)
-			for i in range(0,257):
-				fila[i] = 0	
-			pixels[col] = fila
-		numeros[label[0]] = pixels	
-	
-	for numpixel in range(0,784):	
-		if pixelsCeros[numpixel][1] <= 41900:	
-			columnasEliminadas += 1	
-			pixels = numeros[label[0]]
-			indice = int(label[numpixel+1])
-			#if indice <> 0:
-			pixels[numpixel][indice] += 1
-			pixels[numpixel][256] += 1	
-	print (784 - columnasEliminadas)
+	perceptron(label)
+		
 train.close()	
-
+"""
 #Se calcula el P(X) que es constante para todo
 for i in range(0,10):
 	listaPixels = numeros[str(i)]
@@ -102,4 +97,4 @@ for label in test_csv:
 	registros.append(tuplaNumero)				
 prediccion_csv.writerows(registros)		
 test.close()
-archivoPrediccion.close()
+archivoPrediccion.close()"""
