@@ -13,26 +13,26 @@ UMBRAL = 0.5
 
 wInicialEntrada = range(0,NUM_PIXELES + 1)
 wInicialSalida = range(0,NEURONASCAPAOCULTA + 1)
-vectorW1 = range(0,NUM_CLASES)
+vectorW1 = range(0,NEURONASCAPAOCULTA)
 vectorW2 = range(0,NUM_CLASES)
 matriz = []
 
-for i in range(0,NUM_PIXELES + 1):
+for i in range(0,NEURONASCAPAOCULTA):
 	wInicialEntrada[i] = []
-	for j in range(0,NEURONASCAPAOCULTA):
+	for j in range(0,NUM_PIXELES + 1):
 		wInicialEntrada[i].append(random.random())
 
-for i in range(0,NEURONASCAPAOCULTA):
+for i in range(0,NUM_CLASES):
 	wInicialSalida[i] = []
-	for j in range(0,NUM_CLASES):
+	for j in range(0,NEURONASCAPAOCULTA):
 		wInicialSalida[i].append(random.random())
 
 for i in range(0,NUM_CLASES):
 	vectorW1[i] = wInicialEntrada
 	vectorW2[i] = wInicialSalida
 
-def funcionDeActivacion(valor):
-	return (float(1/(1+exp(-valor))))
+def sigmoide(valor):
+	return (float(1/(1+math.exp(-valor))))
 
 def productoInterno(x,w):
 	producto = 0
@@ -80,26 +80,26 @@ def perceptron(posicionFila,matriz,numeroDeClase,solucionPerceptron,solucionIdea
 def escalamiento(valor):
 	return (valor - VALORMINIMO)/(VALORMAXIMO - VALORMINIMO)
 	
-def neurona(entrada,pesos):
-	return (funcionDeActivacion(productoInterno(entrada,pesos[int(matriz[i][0])])))
+def salidaNeurona(entrada,pesos):
+	return (sigmoide(productoInterno(entrada,pesos)))
 
 def recorrerMatriz(matriz,numeroDeClase):
-	tamanio = len(matriz)
-	capaDeEntrada = []
-	capaDeSalida = []
-	vectorSalida = []
-	salidasReales = []
-	salidasCapaOculta = []
-	for i in range(0,NUM_CLASES):
-		capaDeSalida.append(0)
+	tamanio = len(matriz)	
 	for i in range(0, tamanio):
+		capaDeEntrada = []
+		capaDeSalida = []
+		salidasReales = []
+		salidasCapaOculta = []
+		for i in range(0,NUM_CLASES):
+			capaDeSalida.append(0)
+		capaDeSalida[int(matriz[i][0])] = 1
 		for pixel in range(1,NUM_PIXELES):
 			capaDeEntrada.append(escalamiento(int(matriz[i][pixel])))
-		for neurona in range(0,NUM_PIXELES):
-			vectorSalida.append(funcionDeActivacion(productoInterno([1]+capaDeEntrada,vectorW1[int(matriz[i][0])][neurona])))
-		for neuronaOculta in range(0,NEURONASCAPAOCULTA):
-			salidasCapaOculta.append(neurona(vectorSalida,vectorW2[int(matriz[i][0])][neuronaOculta]))
-				
+		for neurona in range(0,NEURONASCAPAOCULTA):
+			salidasCapaOculta.append(salidaNeurona([1]+capaDeEntrada,vectorW1[int(matriz[i][0])][neurona]))
+		for salidas in range(0,NUM_CLASES):
+			salidasReales.append(salidaNeurona(salidasCapaOculta,vectorW2[int(matriz[i][0])][salidas]))
+		print salidasReales
 		"""clasificador = funcionDeActivacion(productoInterno([1]+capaDeEntrada,vectorw[int(matriz[i][0])]))
 		if(int(matriz[i][0]) == numeroDeClase):
 			capaDeSalida[numeroDeClase] = 1
