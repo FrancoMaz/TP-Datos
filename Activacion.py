@@ -5,7 +5,7 @@ import math
 
 #crea archivos para comprobar la valides--------------------------
 
-
+"""
 archivoPrediccion = open ("resultadoDeLaPrediccionDeNumeros.csv","w")
 prediccion_csv = csv.writer(archivoPrediccion)
 registros = []
@@ -19,7 +19,7 @@ for i in range(0,32001):
 	contador += 1
 prediccion_csv.writerows(registros)	
 archivoPrediccion.close()
-
+"""
 #-----------------------------------------------------------------------------------------------------#
 predicciones = open('resultadoDeLaPrediccionDeNumeros.csv')
 predicciones_csv = csv.reader(predicciones, delimiter=",")
