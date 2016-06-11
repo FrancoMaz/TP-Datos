@@ -154,10 +154,28 @@ train = open('train.csv')
 archivo_csv = csv.reader(train, delimiter=",")
 archivo_csv.next()
 
+
+#division de datos y de validacion---------------------------
+matizDeValidacion=[]
+contador=0
 for label in archivo_csv:
-	setDeDatos.append(label)
-train.close()		
+	if (contador < 30000):
+		setDeDatos.append(label)
+	else:
+		matizDeValidacion.append(label)
+	contador +=1	
+train.close()
+
+archivoValidacion = open ("archivoValidacion.csv","w")
+archivoValidacion_csv = csv.writer(archivoValidacion)
+registroValidacion = []
+registroValidacion.append("Label")
+for i in range(0,len(matizDeValidacion)):
+	registroValidacion.append(matizDeValidacion[i])
+archivoValidacion_csv.writerows(registroValidacion)		
+archivoValidacion.close()
+#fin de division-----------------------------
+
 
 #for clase in range(0,NUM_CLASES):
 entrenamiento(setDeDatos)
-		
