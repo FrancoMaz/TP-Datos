@@ -11,7 +11,6 @@ FACTORAPRENDIZAJE = 0.5
 NEURONASCAPAOCULTA1 = 100
 NEURONASCAPAOCULTA2 = 100
 CANTIDADCAPAS = 4
-UMBRALINICIAL = 0.5
 CRITERIODECORTE = 0.01
 
 wPesoCapa1 = range(0,NEURONASCAPAOCULTA1)
@@ -31,8 +30,8 @@ factoresDeCambio = []
 def inicializacionPesos(listaPesos,entrada,salida):
 	for i in range(0,salida):
 		listaPesos[i] = []
-		for j in range(0,entrada):
-			listaPesos[i].append(random.random())
+		for j in range(0,entrada+1):
+			listaPesos[i].append(random.randint(-1,1))
 
 	
 #Inicializacion de vector de factores de cambio------------
@@ -75,7 +74,6 @@ def error(salidaDeseada,salidaFinal):
 	
 #Funciones auxiliares---------------------------------------------
 def sigmoide(valor):
-	print valor
 	return float(1/(1+math.exp(-valor)))
 
 def productoInterno(x,w):
@@ -95,7 +93,7 @@ def derivadaSalida(salida):
 	
 def calcularSalidasDeCapa(cantidadNeuronas,salidas,entradas,pesos):
 	for i in range(0,cantidadNeuronas):
-		salidas[i] = float(funcionDeActivacion(entradas,pesos[i] + [UMBRALINICIAL]))
+		salidas[i] = float(funcionDeActivacion(entradas,pesos[i]))
 		
 def modificarVector(vector,tamanio):	
 	vectorADevolver = range(0,tamanio-1)
@@ -114,22 +112,23 @@ def entrenamiento(setDeDatos):
 		#se calcula la salida de la capa oculta 1
 		calcularSalidasDeCapa(NEURONASCAPAOCULTA1,salidasCapaOculta1,modificarVector(fila,len(setDeDatos[i])),wPesoCapa1)
 		#se calcula la salida de la capa oculta 2
-		calcularSalidasDeCapa(NEURONASCAPAOCULTA2,salidasCapaOculta2,salidasCapaOculta1+[1],wPesoCapa2)
+		calcularSalidasDeCapa(NEURONASCAPAOCULTA2,salidasCapaOculta2,salidasCapaOculta1+[-1],wPesoCapa2)
 		#se calcula la salida de la capa final
-		calcularSalidasDeCapa(NUM_CLASES,salidasCapaFinal,salidasCapaOculta2+[1],wPesoCapaFinal)
+		calcularSalidasDeCapa(NUM_CLASES,salidasCapaFinal,salidasCapaOculta2+[-1],wPesoCapaFinal)
 		contadorPosiciones = 0
 		if (error(salidasDeseadas,salidasCapaFinal) > CRITERIODECORTE):
 			while (contadorPosiciones <= i):		
 				#recalculamos todos los pesos de la red
 				backpropagation(salidasDeseadas,salidasCapaFinal,salidasCapaOculta1,salidasCapaOculta2,wPesoCapa1,wPesoCapa2,wPesoCapaFinal,modificarVector(fila,len(setDeDatos[i])))
 				#calculamos otras vez las salidas de todas las capas
+				print error(salidasDeseadas,salidasCapaFinal)
 				fila = setDeDatos[contadorPosiciones]
 				for j in range(0,NUM_CLASES):
 					salidasDeseadas.append(0)
 				salidasDeseadas[int(setDeDatos[i][0])] = 1
 				calcularSalidasDeCapa(NEURONASCAPAOCULTA1,salidasCapaOculta1,modificarVector(fila,len(setDeDatos[contadorPosiciones])),wPesoCapa1)
-				calcularSalidasDeCapa(NEURONASCAPAOCULTA2,salidasCapaOculta2,salidasCapaOculta1+[1],wPesoCapa2)
-				calcularSalidasDeCapa(NUM_CLASES,salidasCapaFinal,salidasCapaOculta2+[1],wPesoCapaFinal)
+				calcularSalidasDeCapa(NEURONASCAPAOCULTA2,salidasCapaOculta2,salidasCapaOculta1+[-1],wPesoCapa2)
+				calcularSalidasDeCapa(NUM_CLASES,salidasCapaFinal,salidasCapaOculta2+[-1],wPesoCapaFinal)
 				if (error(salidasDeseadas,salidasCapaFinal) > CRITERIODECORTE):
 					contadorPosiciones =-1	
 				for x in salidasDeseadas[:]:
