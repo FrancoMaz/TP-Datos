@@ -21,8 +21,9 @@ entradasCapaInicial = range(0,NUM_PIXELES)
 salidasCapaOculta1 = range(0,NEURONASCAPAOCULTA1)
 salidasCapaOculta2 = range(0,NEURONASCAPAOCULTA2)
 salidasCapaFinal = range(0,NUM_CLASES)
-salidasDeseadas = []
+salidasDeseadas = range(0,NUM_CLASES)
 factoresDeCambio = []
+ejemplosQueFallan = []
 
 
 #Inicializacion de vectores de pesos-------------------
@@ -31,8 +32,15 @@ def inicializacionPesos(listaPesos,entrada,salida):
 	for i in range(0,salida):
 		listaPesos[i] = []
 		for j in range(0,entrada+1):
-			listaPesos[i].append(random.randint(-1,1))
+			listaPesos[i].append(random.uniform(-1.0,1.0))
 
+def inicializacionSalidasDeseadas(salidasDeseadas):
+	for i in range(0,len(salidasDeseadas)):
+		salidasDeseadas[i] = range(0,NUM_CLASES)
+		for j in range(0,len(salidasDeseadas[i])):
+			salidasDeseadas[i][j] = 0
+			if (i == j):
+				salidasDeseadas[i][j] = 1
 	
 #Inicializacion de vector de factores de cambio------------
 def inicializacionFactorDeCambio(factoresDeCambio,cantidadNeuronas):
@@ -100,34 +108,35 @@ def modificarVector(vector,tamanio):
 	for i in range(1,tamanio):
 		vectorADevolver[i-1] = escalamiento(int(vector[i]))
 	return (vectorADevolver + [-1])
+	
+def crearArchivoPesos(nombre,vectorPesos):
+	archivoPesos = open(nombre,"w")
+	pesos_csv = csv.writer(archivoPesos)
+	pesos_csv.writerows(vectorPesos)
+	archivoPesos.close()
 #---------------------------------------------------------------
 #Funcion de entrenamiento
-def entrenamiento(setDeDatos):
-	for i in range(0,len(setDeDatos)):
-		fila = setDeDatos[i]
-		for j in range(0,NUM_CLASES):
-			salidasDeseadas.append(0)
-		salidasDeseadas[int(fila[0])] = 1
-		#calcularSalidasDeCapa(cantidadNeuronasCapaActual,salidasCapaActual,salidasCapaAnterior,pesosCapaActual)
-		#se calcula la salida de la capa oculta 1
-		calcularSalidasDeCapa(NEURONASCAPAOCULTA1,salidasCapaOculta1,modificarVector(fila,len(fila)),wPesoCapa1)
-		#se calcula la salida de la capa oculta 2
-		calcularSalidasDeCapa(NEURONASCAPAOCULTA2,salidasCapaOculta2,salidasCapaOculta1+[-1],wPesoCapa2)
-		#se calcula la salida de la capa final
-		calcularSalidasDeCapa(NUM_CLASES,salidasCapaFinal,salidasCapaOculta2+[-1],wPesoCapaFinal)
-		contadorPosiciones = 0
-		contadorDeControl = 0
-		while (error(salidasDeseadas,salidasCapaFinal) > CRITERIODECORTE) and (contadorDeControl < 100):
+def entrenamiento(fila):
+	#calcularSalidasDeCapa(cantidadNeuronasCapaActual,salidasCapaActual,salidasCapaAnterior,pesosCapaActual)
+	#se calcula la salida de la capa oculta 1
+	calcularSalidasDeCapa(NEURONASCAPAOCULTA1,salidasCapaOculta1,modificarVector(fila,len(fila)),wPesoCapa1)
+	#se calcula la salida de la capa oculta 2
+	calcularSalidasDeCapa(NEURONASCAPAOCULTA2,salidasCapaOculta2,salidasCapaOculta1+[-1],wPesoCapa2)
+	#se calcula la salida de la capa final
+	calcularSalidasDeCapa(NUM_CLASES,salidasCapaFinal,salidasCapaOculta2+[-1],wPesoCapaFinal)
+	contadorPosiciones = 0
+	contadorDeControl = 0
+	while (error(salidasDeseadas[int(fila[0])],salidasCapaFinal) > CRITERIODECORTE) and (contadorDeControl < 100):
 			
-			#while ((contadorPosiciones <= i) or (contadorDeControl <= 1000)):	
-				#recalculamos todos los pesos de la red
-			backpropagation(salidasDeseadas,salidasCapaFinal,salidasCapaOculta1,salidasCapaOculta2,wPesoCapa1,wPesoCapa2,wPesoCapaFinal,modificarVector(fila,len(setDeDatos[i])))
-			calcularSalidasDeCapa(NEURONASCAPAOCULTA1,salidasCapaOculta1,modificarVector(fila,len(fila)),wPesoCapa1)
-			calcularSalidasDeCapa(NEURONASCAPAOCULTA2,salidasCapaOculta2,salidasCapaOculta1+[-1],wPesoCapa2)
-			calcularSalidasDeCapa(NUM_CLASES,salidasCapaFinal,salidasCapaOculta2+[-1],wPesoCapaFinal)
-			print i
-			print error(salidasDeseadas,salidasCapaFinal)
-			contadorDeControl +=1
+		#while ((contadorPosiciones <= i) or (contadorDeControl <= 1000)):	
+			#recalculamos todos los pesos de la red
+		backpropagation(salidasDeseadas[int(fila[0])],salidasCapaFinal,salidasCapaOculta1,salidasCapaOculta2,wPesoCapa1,wPesoCapa2,wPesoCapaFinal,modificarVector(fila,len(setDeDatos[i])))
+		calcularSalidasDeCapa(NEURONASCAPAOCULTA1,salidasCapaOculta1,modificarVector(fila,len(fila)),wPesoCapa1)
+		calcularSalidasDeCapa(NEURONASCAPAOCULTA2,salidasCapaOculta2,salidasCapaOculta1+[-1],wPesoCapa2)
+		calcularSalidasDeCapa(NUM_CLASES,salidasCapaFinal,salidasCapaOculta2+[-1],wPesoCapaFinal)
+		print i
+		print error(salidasDeseadas[int(fila[0])],salidasCapaFinal)
+		contadorDeControl +=1
 			
 				#calculamos otras vez las salidas de todas las capas
 				
@@ -152,6 +161,7 @@ def entrenamiento(setDeDatos):
 inicializacionPesos(wPesoCapa1,NUM_PIXELES,NEURONASCAPAOCULTA1)
 inicializacionPesos(wPesoCapa2,NEURONASCAPAOCULTA1,NEURONASCAPAOCULTA2)
 inicializacionPesos(wPesoCapaFinal,NEURONASCAPAOCULTA2,NUM_CLASES)
+inicializacionSalidasDeseadas(salidasDeseadas)
 
 #Inicializacion de factores de cambio		
 inicializacionFactorDeCambio(factoresDeCambio,NEURONASCAPAOCULTA1)
@@ -168,9 +178,9 @@ archivo_csv.next()
 matizDeValidacion=[]
 contador=0
 for label in archivo_csv:
-	if (contador <= 30000):
+	if (contador <= 10):
 		setDeDatos.append(label)
-	else:
+	elif (contador > 10 and contador <=20):
 		matizDeValidacion.append(label)
 	contador +=1	
 train.close()
@@ -185,37 +195,49 @@ archivoValidacion_csv.writerows(registroValidacion)
 archivoValidacion.close()
 #fin de division-----------------------------
 
-entrenamiento(setDeDatos)
+for i in range(0,len(setDeDatos)):
+	entrenamiento(setDeDatos[i])
 
-test = open('archivoValidacion.csv')
-test_csv = csv.reader(test, delimiter=",")
-test_csv.next()
+crearArchivoPesos("pesosCapa1.csv",wPesoCapa1)
+crearArchivoPesos("pesosCapa2.csv",wPesoCapa2)
+crearArchivoPesos("pesosCapaFinal.csv",wPesoCapaFinal)
 
-archivoPrediccion = open ("resultadoDeLaPrediccionDeNumeros.csv","w")
+validacion = open('archivoValidacion.csv')
+validacion_csv = csv.reader(validacion, delimiter=",")
+validacion_csv.next()
+
+archivoPrediccion = open ("prediccionValidacion.csv","w")
 prediccion_csv = csv.writer(archivoPrediccion)
 registros = []
 registros.append(("ImageId","Label"))
 contador = 0
-for label in test_csv:
+contadorAciertos = 0
+for label in validacion_csv:
 	contador += 1
+	print contador
 	tuplaX = label
-	calcularSalidasDeCapa(NEURONASCAPAOCULTA1,salidasCapaOculta1,modificarVector(label,len(label)),wPesoCapa1)
+	calcularSalidasDeCapa(NEURONASCAPAOCULTA1,salidasCapaOculta1,modificarVector(tuplaX,len(tuplaX)),wPesoCapa1)
 	calcularSalidasDeCapa(NEURONASCAPAOCULTA2,salidasCapaOculta2,salidasCapaOculta1+[-1],wPesoCapa2)
 	calcularSalidasDeCapa(NUM_CLASES,salidasCapaFinal,salidasCapaOculta2+[-1],wPesoCapaFinal)
-	solucionAComparar = range(0,NUM_CLASES)
-	for i in range(0,NUM_CLASES):
-		solucionAComparar[i] = range(0,NUM_CLASES)
-		for j in range(0,NUM_CLASES):
-			solucionAComparar[i][j] = 0
-			if (i == j):
-				solucionAComparar[i][j] = 1
 	menorError = 100
 	for i in range(0,NUM_CLASES):
-		if (error(solucionAComparar[i],salidasCapaFinal) < menorError):
-			menorError = error(solucionAComparar[i],salidasCapaFinal)
+		if (error(salidasDeseadas[i],salidasCapaFinal) < menorError):
+			menorError = error(salidasDeseadas[i],salidasCapaFinal)
 			clase = i
+	if (i == int(label[0])):
+		contadorAciertos += 1
+	else:
+		ejemplosQueFallan.append(tuplaX)
 	tuplaNumero=(contador,clase)
-	registros.append(tuplaNumero)				
+	registros.append(tuplaNumero)
+print ("Aciertos: " + str(contadorAciertos) + " de " + str(contador) + " datos totales")		
 prediccion_csv.writerows(registros)		
-test.close()
+validacion.close()
 archivoPrediccion.close()
+
+for i in range(0,len(ejemplosQueFallan)):
+	entrenamiento(ejemplosQueFallan[i])
+
+crearArchivoPesos("pesosCapa1.csv",wPesoCapa1)
+crearArchivoPesos("pesosCapa2.csv",wPesoCapa2)
+crearArchivoPesos("pesosCapaFinal.csv",wPesoCapaFinal)
