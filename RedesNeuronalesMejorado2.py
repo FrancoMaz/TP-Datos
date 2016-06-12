@@ -178,9 +178,9 @@ archivo_csv.next()
 matizDeValidacion=[]
 contador=0
 for label in archivo_csv:
-	if (contador <= 10):
+	if (contador <= 30000):
 		setDeDatos.append(label)
-	elif (contador > 10 and contador <=20):
+	else:
 		matizDeValidacion.append(label)
 	contador +=1	
 train.close()
